@@ -1,0 +1,61 @@
+# Macbook-101-Ubuntu-server
+Set up for Ubuntu Server on MBP 10.1
+
+* Prior to installation
+- Use OS X to create a Ubuntu server bootable USB
+- Install [[http://www.rodsbooks.com/refind/][Refind]]
+- Shrink OS X partition
+- Aquire thunderbolt-ethernet adaptor
+
+* Basic Installation
+- Install Ubuntu Server with ethernet.
+- update and upgrade
+- apt-get install bcmwl-kernel-source
+- edit /etc/init/failsafe.cong and comment out all lines relating to sleep to prevent stalling on startup without networking
+
+* Wifi
+- apt-get install wpasupplicant
+- edit /etc/wpasupplicant.conf
+#+begin_src
+network={
+	ssid="ssid name"
+	key_mgmt=WPA-PSK
+	psk="secret-psk"
+	}
+#+end_src
+
+* Desktop
+- apt-get install xorg
+- echo "deb http://debian.sur5r.net/i3/ $(lsb_release -c -s) universe" >> /etc/apt/sources.list
+- apt-get update
+- apt-get --allow-unauthenticated install sur5r-keyring
+- apt-get update
+- apt-get install i3
+- edit .i3/config
+  - add focus_follows_mouse no
+  - # Execute synclient for trackpad
+  - exec synclient MaxTapTime=0
+  - exec synclient VertEdgeScroll=0
+  - exec synclient PalmDetect=1
+- setxbmap - layout gb -variant mac #
+
+* Firefox
+- add-apt-repository ppa:ubuntu-mozilla-daily/firefox-aurora
+- apt-get update & apt-get install firefox
+
+* DNS Setting
+- edit /etc/dhcp/dhclinet.conf
+  - prepend domain-nam-servers 8.8.8.8,8/8/8/4; #for instance
+
+* VPN
+- apt-get install openvpn
+
+* Sound
+- edit alsa-base.conf
+  - options snd-hda-intel model=mbp101 #this line may not be required
+- create /etec/modprobe.d/sound.conf
+  - alias sound-card-0 snd-hda-intel
+
+* Thunderbird
+- apt-get install thunderbird
+- Use Exquilla 
