@@ -3,59 +3,97 @@ Set up for Ubuntu Server on MBP 10.1
 
 * Prior to installation
 - Use OS X to create a Ubuntu server bootable USB
+#+begin_src bash
+hdiutil convert -format UDRW -o ~/path/to/target.img ~/path/to/ubuntu.iso
+diskutil unmountDisk /dev/diskN
+sudo dd if=/path/to/downloaded.img of=/dev/rdiskN bs=1m
+#+end_src
 - Install [[http://www.rodsbooks.com/refind/][Refind]]
 - Shrink OS X partition
-- Aquire thunderbolt-ethernet adaptor
+- Aquire a thunderbolt-ethernet adaptor
 
 * Basic Installation
 - Install Ubuntu Server with ethernet.
-- update and upgrade
-- apt-get install bcmwl-kernel-source
+- On choosing partitioning - select the created partition and delete it. Then choose guided on the largest continuous free space.
+#+begin_src bash
+update and upgrade
+apt-get install bcmwl-kernel-source
+#+end_src
 - edit /etc/init/failsafe.cong and comment out all lines relating to sleep to prevent stalling on startup without networking
 
 * Wifi
-- apt-get install wpasupplicant
-- edit /etc/wpasupplicant.conf
-#+begin_src
-network={
-	ssid="ssid name"
-	key_mgmt=WPA-PSK
-	psk="secret-psk"
-	}
+- install wpasupplicant, if not already installed.
+#+begin_src bash
+apt-get install wpasupplicant
 #+end_src
-
+#+begin_src
+wpapassphrase ssid psk
+#+end_src
+- edit =/etc/network/interfaces
+#+begin_src bash
+iface wlan0 inet dhcp
+    wpa-ssid SSID_NAME
+    wpa-psk LONG_STRING_FROM_WPAPASSPHARASE
+#+end_src
+* Other packages
+#+begin_src bash
+apt-get install build-essential git imagemagick mutt openvpn git ssh xfce4-terminal youtube-dl vlc
+#+end_src
+* Emacs
+#+begin_src bash
+sudo apt-get build-dep emacs24
+wget http://ftp.gnu.org/gnu/emacs/emacs-24.4.tar.xz
+tar -xvf emacs-24.4.tar.xz
+cd emacs-24.4
+./configure
+make
+sudo make install
+#+end_src
+- take .emacs and .emacs.d from this repo
 * Desktop
-- apt-get install xorg
-- echo "deb http://debian.sur5r.net/i3/ $(lsb_release -c -s) universe" >> /etc/apt/sources.list
-- apt-get update
-- apt-get --allow-unauthenticated install sur5r-keyring
-- apt-get update
-- apt-get install i3
-- edit .i3/config
-  - add focus_follows_mouse no
-  - # Execute synclient for trackpad
-  - exec synclient MaxTapTime=0
-  - exec synclient VertEdgeScroll=0
-  - exec synclient PalmDetect=1
-- setxbmap - layout gb -variant mac #
-
+#+begin_src bash
+echo 'deb http://build.i3wm.org/ubuntu/trusty trusty main' >> /etc/apt/sources.list
+apt-get update
+apt-get --allow-unauthenticated install i3-autobuild-keyring
+apt-get update
+apt-get install i3
+#+end_src
+- take =~/.i3/config= file from this repo
 * Firefox
-- add-apt-repository ppa:ubuntu-mozilla-daily/firefox-aurora
-- apt-get update & apt-get install firefox
-
+- Developers edition
+#+begin_src bash
+add-apt-repository ppa:ubuntu-mozilla-daily/firefox-aurora
+apt-get update & apt-get install firefox
+#+end_src
 * DNS Setting
-- edit /etc/dhcp/dhclinet.conf
-  - prepend domain-nam-servers 8.8.8.8,8/8/8/4; #for instance
-
+- To edit DNS - open =/etc/dhcp/dhclinet.conf=
+#+begin_src bash
+prepend domain-nam-servers 8.8.8.8,8/8/8/4; #for instance
+#+end_src
 * VPN
 - apt-get install openvpn
 
 * Sound
-- edit alsa-base.conf
-  - options snd-hda-intel model=mbp101 #this line may not be required
-- create /etec/modprobe.d/sound.conf
-  - alias sound-card-0 snd-hda-intel
+#+begin_src bash
+sudo apt-get install alsa-base
+sudo apt-get remove --purge alsa-utils
+sudo apt-get install alsa-utils
+#+end_src
+- edit =etc/modprobe.d/alsa-base.conf=
+#+begin_src bash
+options snd-hda-intel model=mbp101
+#+end_src
+- create =/etc/modprobe.d/sound.conf=
+#+begin_src bash
+alias sound-card-0 snd-hda-intel
+#+end_src
+* Fans
+#+begin_src bash
+add-apt-repository ppa:detly/mactel-utils
+apt-get update
+apt-get install macfanctld
+#+end_src
 
-* Thunderbird
-- apt-get install thunderbird
-- Use Exquilla 
+
+
+
