@@ -1,6 +1,5 @@
 # Macbook-101-Ubuntu-server
 Set up for Ubuntu Server on MBP 10.1
-
 * Prior to installation
 - Use OS X to create a Ubuntu server bootable USB
 #+begin_src bash
@@ -27,13 +26,30 @@ apt-get install bcmwl-kernel-source
 apt-get install wpasupplicant
 #+end_src
 #+begin_src
-wpapassphrase ssid psk
+wpapassphrase ssid psk >> /etc/wpa_supplicant.conf
+#+end_src
+- Add first line of wpa_supplicant.conf to read
+#+begin_src bash
+ctrl_interface=/run/wpa_supplicant
 #+end_src
 - edit =/etc/network/interfaces
 #+begin_src bash
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eth0
+iface eth0 inet dhcp
+
+auto wlan0
 iface wlan0 inet dhcp
-    wpa-ssid SSID_NAME
-    wpa-psk LONG_STRING_FROM_WPAPASSPHARASE
+pre-up wpa_supplicant -Dnl80211 -iwlan0 -B -c/etc/wpa_supplicant/wpa_supplicant.conf
+post-down killall -q wpa_supplicant
+iface default inet dhcp
 #+end_src
 * Other packages
 #+begin_src bash
@@ -71,21 +87,22 @@ apt-get update & apt-get install firefox
 prepend domain-nam-servers 8.8.8.8,8/8/8/4; #for instance
 #+end_src
 * VPN
-- apt-get install openvpn
-
-* Sound
 #+begin_src bash
-sudo apt-get install alsa-base
-sudo apt-get remove --purge alsa-utils
-sudo apt-get install alsa-utils
+apt-get install openvpn
 #+end_src
-- edit =etc/modprobe.d/alsa-base.conf=
+* Sound
+- Install alsa
+#+begin_src bash
+sudo apt-get install alsa
+#+end_src
+- note - might also need alsa-utils and alsa-tools????
+- edit =etc/modprobe.d/alsa-base.conf= and add to the end
 #+begin_src bash
 options snd-hda-intel model=mbp101
 #+end_src
-- create =/etc/modprobe.d/sound.conf=
+- Then add yourself to the audio group
 #+begin_src bash
-alias sound-card-0 snd-hda-intel
+sudo adduser UserName audio
 #+end_src
 * Fans
 #+begin_src bash
